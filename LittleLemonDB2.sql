@@ -39,6 +39,7 @@ CREATE TABLE `bookings` (
 
 LOCK TABLES `bookings` WRITE;
 /*!40000 ALTER TABLE `bookings` DISABLE KEYS */;
+INSERT INTO `bookings` VALUES (1,'2023-08-12',2,4),(2,'2023-08-13',4,3),(3,'2023-08-14',6,2),(4,'2023-08-14',12,1);
 /*!40000 ALTER TABLE `bookings` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -64,6 +65,7 @@ CREATE TABLE `customers` (
 
 LOCK TABLES `customers` WRITE;
 /*!40000 ALTER TABLE `customers` DISABLE KEYS */;
+INSERT INTO `customers` VALUES (1,'Customer1','0549147755','c1@gmail.com'),(2,'Customer2','0549147565','c2@gmail.com'),(3,'Customer3','0533147755','c3@gmail.com'),(4,'Customer4','0549144755','c4@gmail.com');
 /*!40000 ALTER TABLE `customers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -88,6 +90,7 @@ CREATE TABLE `employees` (
 
 LOCK TABLES `employees` WRITE;
 /*!40000 ALTER TABLE `employees` DISABLE KEYS */;
+INSERT INTO `employees` VALUES (1,'Manager','$70,000'),(2,'Assistant Manager','$65,000'),(3,'Head Chef','$50,000'),(4,'Assistant Chef','$45,000'),(5,'Head Waiter','$40,000'),(6,'Receptionist','$35,000');
 /*!40000 ALTER TABLE `employees` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -113,8 +116,21 @@ CREATE TABLE `menuitems` (
 
 LOCK TABLES `menuitems` WRITE;
 /*!40000 ALTER TABLE `menuitems` DISABLE KEYS */;
+INSERT INTO `menuitems` VALUES (1,'Olives','Starters',5),(2,'Minestrone','Starters',10),(3,'Falafel','Starters',5);
 /*!40000 ALTER TABLE `menuitems` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Temporary view structure for view `menuitemswithmorethan2ordersview`
+--
+
+DROP TABLE IF EXISTS `menuitemswithmorethan2ordersview`;
+/*!50001 DROP VIEW IF EXISTS `menuitemswithmorethan2ordersview`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `menuitemswithmorethan2ordersview` AS SELECT 
+ 1 AS `ItemName`*/;
+SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `menus`
@@ -139,6 +155,7 @@ CREATE TABLE `menus` (
 
 LOCK TABLES `menus` WRITE;
 /*!40000 ALTER TABLE `menus` DISABLE KEYS */;
+INSERT INTO `menus` VALUES (1,'Greek',1),(2,'Italian',2),(3,'Turkish',3);
 /*!40000 ALTER TABLE `menus` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -162,8 +179,25 @@ CREATE TABLE `orderdeliverystatus` (
 
 LOCK TABLES `orderdeliverystatus` WRITE;
 /*!40000 ALTER TABLE `orderdeliverystatus` DISABLE KEYS */;
+INSERT INTO `orderdeliverystatus` VALUES (1,'not yet'),(2,'not yet'),(3,'delivered'),(4,'not yet'),(5,'delivered');
 /*!40000 ALTER TABLE `orderdeliverystatus` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Temporary view structure for view `ordermorethan150view`
+--
+
+DROP TABLE IF EXISTS `ordermorethan150view`;
+/*!50001 DROP VIEW IF EXISTS `ordermorethan150view`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `ordermorethan150view` AS SELECT 
+ 1 AS `CustomerID`,
+ 1 AS `CustomerFullName`,
+ 1 AS `OrderID`,
+ 1 AS `Cost`,
+ 1 AS `ItemName`*/;
+SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `orders`
@@ -179,6 +213,7 @@ CREATE TABLE `orders` (
   `EmployeeID` int NOT NULL,
   `OrderStatusID` int NOT NULL,
   `MenuID` int NOT NULL,
+  `Cost` decimal(10,0) DEFAULT NULL,
   PRIMARY KEY (`OrderID`),
   KEY `booking_order_fk_idx` (`BookingID`),
   KEY `Employee_order_fk_idx` (`EmployeeID`),
@@ -197,8 +232,77 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
+INSERT INTO `orders` VALUES (1,3,2,1,1,2,200),(2,1,1,2,2,1,250),(3,2,3,2,3,3,100),(4,2,2,3,4,2,200);
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Temporary view structure for view `ordersview`
+--
+
+DROP TABLE IF EXISTS `ordersview`;
+/*!50001 DROP VIEW IF EXISTS `ordersview`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `ordersview` AS SELECT 
+ 1 AS `OrderID`,
+ 1 AS `OrderQuantity`,
+ 1 AS `Cost`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Final view structure for view `menuitemswithmorethan2ordersview`
+--
+
+/*!50001 DROP VIEW IF EXISTS `menuitemswithmorethan2ordersview`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`admin1`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `menuitemswithmorethan2ordersview` AS select `menuitems`.`ItemName` AS `ItemName` from `menuitems` where `menuitems`.`MenuItemID` in (select `menus`.`MenuItemID` from `menus` where `menus`.`MenuID` in (select `orders`.`MenuID` from `orders` where (`orders`.`OrderQuantity` > 2))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `ordermorethan150view`
+--
+
+/*!50001 DROP VIEW IF EXISTS `ordermorethan150view`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`admin1`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `ordermorethan150view` AS select `c`.`CustomerID` AS `CustomerID`,`c`.`CustomerFullName` AS `CustomerFullName`,`o`.`OrderID` AS `OrderID`,`o`.`Cost` AS `Cost`,`i`.`ItemName` AS `ItemName` from ((((`customers` `c` join `bookings` `b`) join `orders` `o`) join `menus` `m`) join `menuitems` `i` on(((`c`.`CustomerID` = `b`.`CustomerID`) and (`b`.`BookingID` = `o`.`BookingID`) and (`o`.`MenuID` = `m`.`MenuID`) and (`m`.`MenuItemID` = `i`.`MenuItemID`)))) where (`o`.`Cost` > 150) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `ordersview`
+--
+
+/*!50001 DROP VIEW IF EXISTS `ordersview`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`admin1`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `ordersview` AS select `orders`.`OrderID` AS `OrderID`,`orders`.`OrderQuantity` AS `OrderQuantity`,`orders`.`Cost` AS `Cost` from `orders` where (`orders`.`OrderQuantity` > 2) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -209,4 +313,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-08-04 19:39:46
+-- Dump completed on 2023-08-04 22:28:07
